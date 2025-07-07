@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /response/
+Disallow: /payment/
+Sitemap: https://armsandantiques.com/sitemap.xml

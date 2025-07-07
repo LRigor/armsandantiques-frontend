@@ -2,7 +2,8 @@
 import { RouterLink } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { Icon } from '@iconify/vue'
-import { onMounted, ref, computed, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import type { Product, Category } from '@/types'
 import { useProductTypesStore } from '@/stores/productTypes'
 import { useRegionsStore } from '@/stores/regions'
@@ -13,7 +14,7 @@ const regionsStore = useRegionsStore()
 const albumsStore = useAlbumsStore()
 
 const currentSlide = ref(0)
-const slideInterval = ref<NodeJS.Timeout | null>(null)
+const slideInterval = ref<number | null>(null)
 
 const currentRegion = computed(() => {
   if (!regionsStore.regionsWithImages.length) return null
@@ -22,7 +23,7 @@ const currentRegion = computed(() => {
 
 const totalSlides = computed(() => regionsStore.regionsWithImages.length)
 
-const formatPrice = (price) => {
+const formatPrice = (price: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

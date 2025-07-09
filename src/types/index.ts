@@ -20,6 +20,57 @@ export interface Product {
   date_added: string
 }
 
+// Enhanced Product interface for detailed product pages
+export interface ProductDetail {
+  id: number
+  name: string
+  description: string
+  price: number
+  slug: string
+  status: string
+  date_added: string
+  uid: string
+  images: ProductImageDetail[]
+  properties: ProductProperty[]
+  region: string
+  product_type: string
+  seo_title?: string
+  seo_keywords?: string
+  seo_description?: string
+  image_original: string
+  image_medium: string
+  image_large: string
+  image_alt_text: string
+  hero_image_original: string
+  hero_image_medium: string
+  hero_image_large: string
+  tw_image: string
+  fb_image: string
+  vk_image: string
+  featured_in_region: boolean
+  featured_in_type: boolean
+  video_embed_url?: string
+}
+
+export interface ProductImageDetail {
+  image_large: string
+  image_original: string
+  alt_text: string
+}
+
+export interface ProductProperty {
+  name: string
+  value: string
+}
+
+export interface ProductDimensions {
+  length?: string
+  width?: string
+  height?: string
+  weight?: string
+  diameter?: string
+}
+
 export interface Category {
   id: number
   name: string
@@ -119,4 +170,26 @@ export interface Album {
   slug: string
   cover_medium: string
   number_of_photos: number
+}
+
+// Similar Product interface for related products
+export interface SimilarProduct {
+  id: number
+  uid: string
+  slug: string
+  name: string
+  image_original: string
+  image_medium: string
+  image_large: string
+  image_alt_text: string
+  hero_image_original: string
+  hero_image_medium: string
+  hero_image_large: string
+  status: string
+  price: number
+  featured_in_region: boolean
+  featured_in_type: boolean
+  product_type: string
+  region: string
+  date_added: string
 }

@@ -23,56 +23,66 @@ useVisitorStore().fetchVisitorCount()
           <h2>Items for Sale</h2>
           <div class="grid grid-cols-2 gap-4">
             <ul class="text-gray-400 flex flex-col gap-2">
-              <li><RouterLink to="/products">India</RouterLink></li>
-              <li><RouterLink to="/categories">China, East Asia,</RouterLink></li>
-              <li><RouterLink to="/brands">Tibet</RouterLink></li>
-              <li><RouterLink to="/brands">Middle East,</RouterLink></li>
-              <li><RouterLink to="/brands">Ottoman Turkey,</RouterLink></li>
-              <li><RouterLink to="/brands">Persia</RouterLink></li>
-              <li><RouterLink to="/brands">Europe</RouterLink></li>
-              <li><RouterLink to="/brands">Islamic Antiques</RouterLink></li>
+              <li><RouterLink to="/for-sale/india">India</RouterLink></li>
+              <li>
+                <RouterLink to="/for-sale/china-east-asia-tibet">China, East Asia,</RouterLink>
+              </li>
+              <li><RouterLink to="/for-sale/tibet">Tibet</RouterLink></li>
+              <li>
+                <RouterLink to="/for-sale/middle-east-ottoman-turkey-persia">
+                  Middle East,
+                </RouterLink>
+              </li>
+              <li><RouterLink to="/for-sale/ottoman-turkey-persia">Ottoman Turkey,</RouterLink></li>
+              <li><RouterLink to="/for-sale/persia">Persia</RouterLink></li>
+              <li><RouterLink to="/for-sale/europe">Europe</RouterLink></li>
+              <li><RouterLink to="/for-sale/islamic-antiques">Islamic Antiques</RouterLink></li>
             </ul>
             <ul class="text-gray-400 flex flex-col gap-2">
-              <li><RouterLink to="/about">Swords</RouterLink></li>
-              <li><RouterLink to="/contact">Daggers</RouterLink></li>
-              <li><RouterLink to="/terms">Antiques</RouterLink></li>
-              <li><RouterLink to="/privacy">Armor</RouterLink></li>
+              <li><RouterLink to="/for-sale/swords">Swords</RouterLink></li>
+              <li><RouterLink to="/for-sale/daggers">Daggers</RouterLink></li>
+              <li><RouterLink to="/for-sale/antiques">Antiques</RouterLink></li>
+              <li><RouterLink to="/for-sale/armor">Armor</RouterLink></li>
             </ul>
           </div>
         </div>
         <div class="flex flex-col gap-4">
           <h2>Archive</h2>
           <ul class="text-gray-400 flex flex-col gap-2">
-            <li><RouterLink to="/contact">Sold Items</RouterLink></li>
-            <li><RouterLink to="/contact">Museum of the World</RouterLink></li>
-            <li><RouterLink to="/contact">Our library</RouterLink></li>
+            <li><RouterLink to="/sold">Sold Items</RouterLink></li>
+            <li><RouterLink to="/museum">Museum of the World</RouterLink></li>
+            <li><RouterLink to="/our-library">Our library</RouterLink></li>
           </ul>
         </div>
         <div class="flex flex-col gap-4">
           <h2>Information</h2>
           <ul class="text-gray-400 flex flex-col gap-2">
-            <li><RouterLink to="/contact">About Us</RouterLink></li>
-            <li><RouterLink to="/contact">Free Shipping</RouterLink></li>
-            <li><RouterLink to="/contact">Terms of Sale</RouterLink></li>
-            <li><RouterLink to="/contact">100% Guarantee</RouterLink></li>
-            <li><RouterLink to="/contact">Sell to Us</RouterLink></li>
-            <li><RouterLink to="/contact">Privacy Policy</RouterLink></li>
+            <li><RouterLink to="/about">About Us</RouterLink></li>
+            <li><RouterLink to="/free-shipping">Free Shipping</RouterLink></li>
+            <li><RouterLink to="/terms">Terms of Sale</RouterLink></li>
+            <li><RouterLink to="/guarantee">100% Guarantee</RouterLink></li>
+            <li><RouterLink to="/sell-to-us">Sell to Us</RouterLink></li>
+            <li><RouterLink to="/privacy">Privacy Policy</RouterLink></li>
           </ul>
         </div>
         <div class="flex flex-col gap-6">
           <div class="flex flex-col gap-2">
             <h2>Contact Us</h2>
-            <h3 class="text-gray-400 text-lg mt-2">+1 (855) 927-3393</h3>
-            <h3 class="text-gray-400 text-lg">info@islamicantiques.com</h3>
+            <h3 class="text-gray-400 text-lg mt-2">
+              <a href="tel:+18559273393">+1 (855) 927-3393</a>
+            </h3>
+            <h3 class="text-gray-400 text-lg">
+              <a href="mailto:info@islamicantiques.com">info@islamicantiques.com</a>
+            </h3>
           </div>
           <div class="flex flex-col gap-4">
             <h2>Follow Us</h2>
             <div class="flex flex-row gap-4 items-center">
               <a href="https://www.pinterest.com/lapa3443/wwwarmsandantiquescom/" target="_blank">
-                <IconPinterest />
+                <IconPinterest class="cursor-pointer" />
               </a>
               <a href="https://www.instagram.com/armsandantiques/" target="_blank">
-                <IconInstagram />
+                <IconInstagram class="cursor-pointer" />
               </a>
             </div>
           </div>
@@ -94,19 +104,19 @@ useVisitorStore().fetchVisitorCount()
       >
         <span class="text-xl">Share</span>
         <a target="_blank">
-          <IconShareFacebook />
+          <IconShareFacebook class="cursor-pointer" />
         </a>
         <a target="_blank">
-          <IconPinterestAlt />
+          <IconPinterestAlt class="cursor-pointer" />
         </a>
         <a target="_blank">
-          <IconTwitter />
+          <IconTwitter class="cursor-pointer" />
         </a>
         <a target="_blank">
-          <IconVK />
+          <IconVK class="cursor-pointer" />
         </a>
         <a target="_blank">
-          <IconSnapchat />
+          <IconSnapchat class="cursor-pointer" />
         </a>
       </div>
 

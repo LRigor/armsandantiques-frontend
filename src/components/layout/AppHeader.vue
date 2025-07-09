@@ -38,7 +38,7 @@ const submenuPaddingClass = computed(() => {
 })
 
 const submenuTopClass = computed(() => {
-  return state.isScrollingDown ? 'top-24' : 'top-28'
+  return state.isScrollingDown ? 'top-[102px]' : 'top-[120px]'
 })
 
 const logoSizeClass = computed(() => {
@@ -182,42 +182,42 @@ onUnmounted(() => {
         :class="submenuPaddingClass"
       >
         <RouterLink
-          to="/catalog"
+          to="/for-sale"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >
           View All
         </RouterLink>
         <RouterLink
-          to="/catalog/india"
+          to="/for-sale/india"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >
           India
         </RouterLink>
         <RouterLink
-          to="/catalog/china-east-asia-tibet"
+          to="/for-sale/china-east-asia-tibet"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >
           China, East Asia, Tibet
         </RouterLink>
         <RouterLink
-          to="/catalog/middle-east-ottoman-turkey-persia"
+          to="/for-sale/middle-east-ottoman-turkey-persia"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >
           Middle East, Ottoman Turkey, Persia
         </RouterLink>
         <RouterLink
-          to="/catalog/europe"
+          to="/for-sale/europe"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >
           Europe
         </RouterLink>
         <RouterLink
-          to="/catalog/islamic-antiques"
+          to="/for-sale/islamic-antiques"
           class="py-2 transition-colors font-medium hover:text-[#f8e6ad]"
           active-class="text-[#f8e6ad]"
         >

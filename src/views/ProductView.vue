@@ -1,60 +1,234 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { onMounted, computed, ref, watch, onUnmounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
-import { onMounted, computed, watch } from 'vue'
-import { useProductsStore } from '@/stores/products'
-import ProductCard from '@/components/ProductCard.vue'
-import ProductSlideShow from '@/components/ProductSlideShow.vue'
-import IconShareFacebook from '@/components/icons/IconShareFacebook.vue'
-import IconPinterestAlt from '@/components/icons/IconPinterestAlt.vue'
-import IconTwitter from '@/components/icons/IconTwitter.vue'
-import IconVK from '@/components/icons/IconVK.vue'
-import IconSnapchat from '@/components/icons/IconSnapchat.vue'
+import { useProductStore } from '@/stores/product'
+import ProductCard from '@/components/layout/ProductCard.vue'
+import SearchRow from '@/components/layout/SearchRow.vue'
 
 const route = useRoute()
-const productsStore = useProductsStore()
+const router = useRouter()
+const productStore = useProductStore()
 
-const productSlug = computed(() => route.params.slug as string)
-
-// Fetch product data when component mounts or slug changes
-onMounted(() => {
-  if (productSlug.value) {
-    productsStore.fetchProduct(productSlug.value)
-  }
+const productTypeFromRoute = computed(() => {
+  return route.name === 'search'
+    ? productStore.type
+    : route.name.match(/sold/g)
+      ? 'sold'
+      : 'for-sale'
 })
 
-// Watch for route changes to fetch new product data
-watch(productSlug, (newSlug) => {
-  if (newSlug) {
-    productsStore.fetchProduct(newSlug)
-  }
+watch(
+  productTypeFromRoute,
+  (newType) => {
+    productStore.type = newType
+  },
+  { immediate: true },
+)
+
+const isLoadingMore = ref(false)
+const searchQuery = ref('')
+const isAutoLoading = ref(false)
+const scrollTimeout = ref<number | null>(null)
+const productsGridRef = ref<HTMLElement | null>(null)
+const sentinelRef = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
+
+// Get region and productType from route params
+const param = computed(
+  () =>
+    (route.params.region as string | undefined) || (route.params.productType as string | undefined),
+)
+
+// Get search query from route query parameters
+const searchQueryParam = computed(() => route.query.q as string | undefined)
+
+// Check if we're on the search route
+const isSearchRoute = computed(() => route.name === 'search')
+
+// Helper to determine if param is a region or productType
+const isRegion = computed(() => {
+  if (!param.value) return false
+  return productStore.regions.some((r) => r.slug === param.value)
+})
+const isProductType = computed(() => {
+  if (!param.value) return false
+  return productStore.productTypes.some((pt) => pt.slug === param.value)
 })
 
-// Format price for display
-const formattedPrice = computed(() => {
-  if (productsStore.product?.price) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(productsStore.product.price)
+const region = computed(() => (isRegion.value ? param.value : undefined))
+const productType = computed(() => (isProductType.value ? param.value : undefined))
+
+const selectedRegionObj = computed(() =>
+  isRegion.value ? productStore.regions.find((r) => r.slug === param.value) : null,
+)
+const selectedProductTypeObj = computed(() =>
+  isProductType.value ? productStore.productTypes.find((pt) => pt.slug === param.value) : null,
+)
+
+// Page title and description based on filters
+const pageTitle = computed(() => {
+  if (productStore.search) {
+    return `Search Results for "${productStore.search}"`
+  } else if (selectedRegionObj.value) {
+    return `${selectedRegionObj.value.name}`
+  } else if (selectedProductTypeObj.value) {
+    return `${selectedProductTypeObj.value.name}`
   }
-  return ''
+  return `Products For Sale`
 })
 
-// Set dynamic page meta
+const pageDescription = computed(() => {
+  let description =
+    'Browse our collection of rare and collectible firearms, antiques, and military items'
+
+  if (productStore.search) {
+    description = `Search results for "${productStore.search}" - ${description}`
+  }
+
+  if (productStore.regionName) {
+    description += ` from ${productStore.regionName}`
+  }
+
+  if (productStore.productTypeName) {
+    description += ` in ${productStore.productTypeName}`
+  }
+
+  return `${description} available for sale.`
+})
+
+const headerTitle = computed(() => {
+  if (productStore.search) {
+    return `Search Results`
+  } else if (selectedRegionObj.value) {
+    return selectedRegionObj.value.h1_for_sale
+  } else if (selectedProductTypeObj.value) {
+    return selectedProductTypeObj.value.h1_for_sale
+  }
+  return 'Products For Sale'
+})
+
+const selectedRegion = computed(() => region.value || '')
+
+const selectedProductType = computed(() => productType.value || '')
+
+const loadProducts = () => {
+  productStore.fetchProducts(0, true)
+}
+
+const loadMoreProducts = async () => {
+  if (!productStore.loading && productStore.hasMore) {
+    isLoadingMore.value = true
+    await productStore.loadMore()
+    isLoadingMore.value = false
+  }
+}
+
+const handleScroll = () => {
+  if (isAutoLoading.value || productStore.loading || !productStore.hasMore) return
+
+  // Clear existing timeout
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value)
+  }
+
+  // Debounce scroll events
+  scrollTimeout.value = window.setTimeout(() => {
+    const scrollTop = window.scrollY
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+
+    // Load more when user is within 200px of the bottom
+    if (scrollTop + windowHeight >= documentHeight - 200) {
+      isAutoLoading.value = true
+      loadMoreProducts().finally(() => {
+        isAutoLoading.value = false
+      })
+    }
+  }, 100) // 100ms debounce
+}
+
+const setupIntersectionObserver = () => {
+  if (observer) observer.disconnect()
+  observer = new window.IntersectionObserver(
+    (entries) => {
+      if (
+        entries[0].isIntersecting &&
+        productStore.hasMore &&
+        !productStore.loading &&
+        !isAutoLoading.value
+      ) {
+        isAutoLoading.value = true
+        loadMoreProducts().finally(() => {
+          isAutoLoading.value = false
+        })
+      }
+    },
+    {
+      root: null, // viewport
+      rootMargin: '0px',
+      threshold: 1.0,
+    },
+  )
+  if (sentinelRef.value) {
+    observer.observe(sentinelRef.value)
+  }
+}
+
+onMounted(async () => {
+  productStore.fetchRegions()
+  productStore.fetchProductTypes()
+
+  // Check if we have search query parameters and we're on the search route
+  if (isSearchRoute.value && searchQueryParam.value) {
+    searchQuery.value = searchQueryParam.value
+    productStore.setSearch(searchQueryParam.value)
+  }
+
+  loadProducts()
+
+  await nextTick()
+  setupIntersectionObserver()
+})
+
+onUnmounted(() => {
+  if (observer) observer.disconnect()
+})
+
+watch(
+  [region, productType, searchQueryParam, productTypeFromRoute],
+  async ([newRegion, newProductType, newSearchQuery, newProductTypeFromRoute]) => {
+    console.log(productStore.search)
+    productStore.setRegion(newRegion || null)
+    productStore.setProductType(newProductType || null)
+
+    // Only set search if we're on the search route and have a search query
+    if (isSearchRoute.value && newSearchQuery) {
+      productStore.setSearch(newSearchQuery)
+      searchQuery.value = newSearchQuery
+    } else if (!isSearchRoute.value) {
+      productStore.setSearch(null)
+    }
+
+    loadProducts()
+    await nextTick()
+    setupIntersectionObserver()
+  },
+)
+
+// Set page meta (only once, with computed)
 useHead(
   computed(() => ({
-    title: `${productsStore.productName || 'Product'} - Arms and Antiques`,
+    title: pageTitle.value,
     meta: [
       {
         name: 'description',
-        content:
-          productsStore.product?.seo_description ||
-          `View details for ${productsStore.productName || 'this product'} at Arms and Antiques.`,
+        content: pageDescription.value,
       },
+      { property: 'og:title', content: pageTitle.value },
       {
-        name: 'keywords',
-        content: productsStore.product?.seo_keywords || '',
+        property: 'og:description',
+        content: pageDescription.value,
       },
     ],
   })),
@@ -62,187 +236,98 @@ useHead(
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <!-- Loading State -->
-    <div v-if="productsStore.loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
-      <p class="mt-4 text-gray-600">Loading product details...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="productsStore.error" class="text-center py-12">
-      <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-        <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Product</h3>
-        <p class="text-red-600">{{ productsStore.error }}</p>
-        <button
-          @click="productsStore.fetchProduct(productSlug)"
-          class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    </div>
-    <!-- Product Details -->
-    <div v-else-if="productsStore.hasProduct">
-      <div class="text-white bg-black">
-        <!-- Product Information -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-row">
-          <div class="space-y-6 w-1/2">
-            <div class="flex flex-col space-y-6">
-              <p class="text-gray-500 text-xl">Item: {{ productsStore.product.uid }}</p>
-              <h1 class="text-4xl text-white font-georgia">
-                {{ productsStore.productName }}
-              </h1>
-
-              <div v-if="formattedPrice" class="text-2xl font-georgia text-[#f8e6ad]">
-                {{ formattedPrice }}
-              </div>
-
-              <div v-if="productsStore.product?.status" class="inline-block text-sm font-medium">
-                <div
-                  v-if="productsStore.product.status === 'enabled'"
-                  class="flex flex-row gap-8 text-base"
-                >
-                  <RouterLink
-                    to="/contact"
-                    class="text-[#f8e6ad] border border-[#f8e6ad] px-16 py-4 hover:bg-[#f8e6ad] hover:text-black transition-colors uppercase"
-                  >
-                    Buy Now
-                  </RouterLink>
-                  <RouterLink
-                    to="/contact"
-                    class="text-[#ccc] border border-[#ccc] px-12 py-4 hover:bg-[#ccc] hover:text-black transition-colors uppercase"
-                  >
-                    Request more info
-                  </RouterLink>
-                </div>
-                <div v-else>
-                  {{ productsStore.product.status }}
-                </div>
-              </div>
-
-              <!-- Product Properties -->
-              <div v-if="productsStore.productProperties.length > 0" class="">
-                <dl class="space-y-2">
-                  <div
-                    v-for="(property, index) in productsStore.productProperties"
-                    :key="index"
-                    class="flex justify-between py-2 border-b text-xl border-gray-500"
-                  >
-                    <dt class="text-white">{{ property.name }}:</dt>
-                    <dd class="text-gray-400">{{ property.value }}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Product Description -->
-            <div
-              v-if="productsStore.product?.description"
-              class="prose prose-gray max-w-none space-y-6"
-            >
-              <h3 class="text-3xl font-georgia">Description</h3>
-              <div v-html="productsStore.product.description" class="text-gray-400 text-lg"></div>
-            </div>
-
-            <div class="flex flex-row items-center text-white gap-4">
-              <a target="_blank">
-                <IconShareFacebook />
-              </a>
-              <a target="_blank">
-                <IconPinterestAlt />
-              </a>
-              <a target="_blank">
-                <IconTwitter />
-              </a>
-              <a target="_blank">
-                <IconVK />
-              </a>
-              <a target="_blank">
-                <IconSnapchat />
-              </a>
-            </div>
-          </div>
-          <div class="w-1/2 flex justify-center sticky top-32 self-start">
-            <img
-              :src="
-                productsStore.product.image_original ||
-                productsStore.product.image_medium ||
-                productsStore.product.image_small
-              "
-              alt="Product Image"
-              class="h-[75vh] object-cover"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="bg-[#1b1b1b]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-24">
-          <!-- Product Images Slideshow -->
-          <ProductSlideShow
-            :images="productsStore.productImages"
-            :product-name="productsStore.productName"
+  <div class="min-h-screen bg-[#161616]">
+    <!-- Header Section -->
+    <div class="text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+        <div class="text-left">
+          <h1 class="text-4xl md:text-5xl font-georgia text-white mb-4">
+            {{ headerTitle }}
+          </h1>
+          <SearchRow
+            :search-query="searchQuery"
+            :selected-region="selectedRegion"
+            :selected-product-type="selectedProductType"
+            :regions="productStore.regions"
+            :product-types="productStore.productTypes"
+            :product-type="productStore.type"
+            :has-search="!!productStore.search"
+            @update:search-query="(value) => (searchQuery = value)"
           />
-
-          <!-- Similar Products Section -->
-          <div v-if="productsStore.hasSimilarProducts || productsStore.similarProductsLoading">
-            <div class="flex justify-between items-center mb-8">
-              <div>
-                <h3 class="text-3xl text-white font-georgia">Similar Items</h3>
-              </div>
-              <RouterLink
-                :to="`/for-sale`"
-                class="text-[#f8e6ad] hover:text-[#f8e6ad] flex items-center gap-2 text-lg font-roboto"
-              >
-                View More
-                <Icon icon="heroicons:arrow-right-20-solid" class="w-5 h-5 text-white" />
-              </RouterLink>
-            </div>
-
-            <!-- Similar Products Loading -->
-            <div v-if="productsStore.similarProductsLoading" class="flex justify-center">
-              <div
-                class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"
-              ></div>
-            </div>
-
-            <!-- Similar Products Grid -->
-            <div
-              v-else-if="productsStore.hasSimilarProducts"
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              <ProductCard
-                v-for="product in productsStore.similarProducts"
-                :key="product.id"
-                :product="product"
-              />
-            </div>
-
-            <!-- Similar Products Error -->
-            <div v-else-if="productsStore.similarProductsError" class="text-center py-8">
-              <p class="text-gray-500 mb-4">Unable to load similar items</p>
-              <button
-                @click="productsStore.fetchSimilarProducts(productsStore.product?.id)"
-                class="text-amber-600 hover:text-amber-700 transition-colors"
-              >
-                Try again
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    <!-- No Product Found -->
-    <div v-else class="text-center py-12">
-      <div class="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
-        <p class="text-gray-600 mb-4">The product you're looking for could not be found.</p>
-        <router-link
-          to="/"
-          class="inline-block bg-amber-600 text-white px-6 py-2 rounded hover:bg-amber-700 transition-colors"
-        >
-          Return Home
-        </router-link>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div
+        v-if="productStore.loading && productStore.products.length === 0"
+        class="text-center py-12"
+      >
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"
+        ></div>
+        <p class="mt-4 text-gray-400">Loading products...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="productStore.error" class="text-center py-12">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+          <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Products</h3>
+          <p class="text-red-600">{{ productStore.error }}</p>
+          <button
+            @click="loadProducts"
+            class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div v-else-if="productStore.products.length > 0">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" ref="productsGridRef">
+          <ProductCard
+            v-for="product in productStore.products"
+            :key="product.id"
+            :product="product"
+          />
+          <div ref="sentinelRef"></div>
+        </div>
+
+        <!-- Auto-loading indicator -->
+        <div v-if="isAutoLoading" class="text-center mt-8">
+          <div
+            class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"
+          ></div>
+          <p class="mt-2 text-gray-400 text-sm">Loading more products...</p>
+        </div>
+
+        <!-- End of Results -->
+        <div v-else-if="productStore.products.length > 0" class="text-center mt-12">
+          <p class="text-gray-400">You've viewed all {{ productStore.products.length }} products</p>
+        </div>
+      </div>
+
+      <!-- No Products Found -->
+      <div v-else class="text-center py-12">
+        <div class="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">No Products Found</h2>
+          <p class="text-gray-600 mb-4">
+            {{
+              productStore.search
+                ? `No products found matching "${productStore.search}".`
+                : region
+                  ? `There are currently no products available for sale from ${productStore.regionName || region}.`
+                  : 'There are currently no products available for sale.'
+            }}
+          </p>
+          <router-link
+            to="/"
+            class="inline-block bg-amber-600 text-white px-6 py-2 rounded hover:bg-amber-700 transition-colors"
+          >
+            Return Home
+          </router-link>
+        </div>
       </div>
     </div>
   </div>

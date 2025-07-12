@@ -4,6 +4,8 @@ import type { ProductType } from '@/types'
 
 export const useProductTypesStore = defineStore('productTypes', {
   state: () => ({
+    withProduct: false as boolean,
+    type: null as string | null,
     productTypes: [] as ProductType[],
     loading: false,
     error: null as string | null,
@@ -15,7 +17,7 @@ export const useProductTypesStore = defineStore('productTypes', {
       this.error = null
 
       try {
-        const response = await apiService.getProductTypes()
+        const response = await apiService.getProductTypes(this.withProduct, this.type)
         this.productTypes = response.data
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch product types'

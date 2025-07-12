@@ -107,18 +107,10 @@ onUnmounted(() => {
                   {{ currentRegion.name }}
                 </span>
                 <img
-                  v-if="
-                    currentRegion.product?.image_large ||
-                    currentRegion.product?.image_medium ||
-                    currentRegion.product?.image_original
-                  "
-                  :src="
-                    currentRegion.product.image_large ||
-                    currentRegion.product.image_medium ||
-                    currentRegion.product.image_original
-                  "
+                  v-if="currentRegion.product?.image_original"
+                  :src="currentRegion.product.image_original"
                   :alt="`${currentRegion.name} Collection`"
-                  class="w-auto h-full object-cover rounded-lg shadow-2xl z-20"
+                  class="w-auto h-full object-cover z-20"
                 />
               </div>
             </Transition>

@@ -6,12 +6,16 @@ import { onMounted } from 'vue'
 import { useProductTypesStore } from '@/stores/productTypes'
 import { useRegionsStore } from '@/stores/regions'
 import { useAlbumsStore } from '@/stores/albums'
-import HeroSlideshow from '@/components/HeroSlideshow.vue'
-import ProductCard from '@/components/ProductCard.vue'
-import AlbumCard from '@/components/AlbumCard.vue'
+import HeroSlideshow from '@/components/layout/HeroSlideshow.vue'
+import ProductCard from '@/components/layout/ProductCard.vue'
+import AlbumCard from '@/components/layout/AlbumCard.vue'
 
 const productTypesStore = useProductTypesStore()
+productTypesStore.withProduct = true
+productTypesStore.type = 'for_sale'
 const regionsStore = useRegionsStore()
+regionsStore.withProduct = true
+regionsStore.type = 'for_sale'
 const albumsStore = useAlbumsStore()
 
 onMounted(() => {
@@ -95,7 +99,7 @@ useHead({
                 <h3 class="text-3xl text-white">{{ productType.name }}</h3>
               </div>
               <RouterLink
-                :to="`/catalog/${productType.slug}`"
+                :to="`/for-sale/${productType.slug}`"
                 class="text-[#f8e6ad] hover:text-[#f8e6ad] flex items-center gap-2 text-lg font-roboto"
               >
                 View More

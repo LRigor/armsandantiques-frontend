@@ -19,9 +19,49 @@ const router = createRouter({
       },
     },
     {
+      path: '/for-sale',
+      name: 'for-sale',
+      component: () => import('@/views/ProductView.vue'),
+      meta: {
+        title: 'Products For Sale - Arms and Antiques',
+      },
+    },
+    {
+      path: '/for-sale/:region',
+      name: 'for-sale-region',
+      component: () => import('@/views/ProductView.vue'),
+      meta: {
+        title: 'Products For Sale - Arms and Antiques',
+      },
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('@/views/ProductView.vue'),
+      meta: {
+        title: 'Search Results - Arms and Antiques',
+      },
+    },
+    {
+      path: '/sold',
+      name: 'sold',
+      component: () => import('@/views/ProductView.vue'),
+      meta: {
+        title: 'Sold Items - Arms and Antiques',
+      },
+    },
+    {
+      path: '/sold/:region',
+      name: 'sold-for-region',
+      component: () => import('@/views/ProductView.vue'),
+      meta: {
+        title: 'Sold Items - Arms and Antiques',
+      },
+    },
+    {
       path: '/product/:slug',
       name: 'product',
-      component: () => import('@/views/ProductView.vue'),
+      component: () => import('@/views/DetailView.vue'),
       meta: {
         title: 'Arms and Antiques - Product',
       },

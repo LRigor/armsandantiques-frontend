@@ -4,6 +4,8 @@ import type { Region } from '@/types'
 
 export const useRegionsStore = defineStore('regions', {
   state: () => ({
+    withProuct: false as boolean,
+    type: null as string | null,
     regions: [] as Region[],
     loading: false,
     error: null as string | null,
@@ -15,7 +17,7 @@ export const useRegionsStore = defineStore('regions', {
       this.error = null
 
       try {
-        const response = await apiService.getRegions()
+        const response = await apiService.getRegions(this.withProduct, this.type)
         this.regions = response.data
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch regions'

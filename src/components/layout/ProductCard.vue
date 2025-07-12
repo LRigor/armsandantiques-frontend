@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
 
 interface Product {
   id: number
@@ -10,13 +11,31 @@ interface Product {
   image_medium?: string | null
   image_original?: string | null
   image_alt_text?: string | null
+  status?: string
 }
 
 interface Props {
   product: Product
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const statusLabel = computed(() => {
+  if (!props.product.status || props.product.status === 'enabled') {
+    return null
+  }
+
+  switch (props.product.status) {
+    case 'sold':
+      return 'Sold'
+    case 'price_on_request':
+      return 'Price on Request'
+    case 'on_hold':
+      return 'On Hold'
+    default:
+      return props.product.status
+  }
+})
 </script>
 
 <template>
@@ -28,12 +47,13 @@ defineProps<Props>()
       :to="`/product/${product.slug}`"
       class="relative bg-black cursor-pointer w-[360px] h-[537px] pt-[37px] pl-[45px] pr-[55px] box-border group flex flex-col gap-4"
     >
-      <!-- Price on Request Banner -->
+      <!-- Status Banner -->
       <div
-        v-if="!product.price"
-        class="absolute font-georgia italic bottom-[10px] left-[-100px] bg-[#f1c40f] text-black py-2 px-20 text-xs font-bold uppercase tracking-wide rotate-45 shadow-lg z-20 whitespace-nowrap"
+        v-if="statusLabel"
+        class="absolute w-72 h-12 flex items-center text-center justify-center font-georgia italic bottom-[15px] -left-1/3 bg-[#f1c40f] text-black py-2 px-20 text-xs font-bold uppercase tracking-wide rotate-45 z-20"
       >
-        Price on <br />Request
+        <span v-if="statusLabel === 'Price on Request'">Price on <br />Request</span>
+        <span v-else>{{ statusLabel }}</span>
       </div>
 
       <h4

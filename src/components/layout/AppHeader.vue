@@ -1,17 +1,33 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
-import { reactive, computed, onMounted, onUnmounted } from 'vue'
+import { reactive, computed, onMounted, onUnmounted, ref } from 'vue'
+import SubscribeModal from './SubscribeModal.vue'
+
+const router = useRouter()
 
 const state = reactive({
   showCategoryMenu: false,
   isScrollingDown: false,
   lastScrollY: 0,
   ticking: false,
+  showSearchBox: false,
+  searchQuery: '',
 })
 
 const toggleCategoryMenu = (): void => {
   state.showCategoryMenu = !state.showCategoryMenu
+}
+
+const toggleSearchBox = (): void => {
+  state.showSearchBox = !state.showSearchBox
+}
+
+const handleSearch = (): void => {
+  if (state.searchQuery) {
+    toggleSearchBox()
+    router.push('/search?type=all&q=' + state.searchQuery)
+  }
 }
 
 const updateScrollState = (): void => {
@@ -38,7 +54,7 @@ const submenuPaddingClass = computed(() => {
 })
 
 const submenuTopClass = computed(() => {
-  return state.isScrollingDown ? 'top-[102px]' : 'top-[120px]'
+  return state.isScrollingDown ? 'top-[102px]' : 'top-[118px]'
 })
 
 const logoSizeClass = computed(() => {
@@ -48,6 +64,11 @@ const logoSizeClass = computed(() => {
 const headerGapClass = computed(() => {
   return state.isScrollingDown ? 'gap-0' : 'gap-4'
 })
+
+const subscribeModalVisible = ref(false)
+const subscribeDialogVisible = () => {
+  subscribeModalVisible.value = true
+}
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -102,7 +123,6 @@ onUnmounted(() => {
 
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-lg">
             <div class="flex justify-between items-center">
-              <!-- Desktop Navigation -->
               <nav class="hidden lg:flex items-center space-x-6">
                 <div
                   @click="toggleCategoryMenu"
@@ -118,7 +138,7 @@ onUnmounted(() => {
                 </div>
 
                 <RouterLink
-                  to="/sold-items"
+                  to="/sold"
                   class="text-white hover:text-gray-300 px-3 font-medium transition-colors"
                   active-class="text-gray-300 font-semibold"
                 >
@@ -149,23 +169,53 @@ onUnmounted(() => {
                   Contact Us
                 </RouterLink>
 
-                <RouterLink
-                  to="/subscribe"
-                  class="text-white hover:text-gray-300 px-3 font-medium transition-colors"
+                <div
+                  class="text-white hover:text-gray-300 px-3 font-medium transition-colors cursor-pointer"
                   active-class="text-gray-300 font-semibold"
+                  @click="subscribeDialogVisible"
                 >
                   Subscribe to Updates
-                </RouterLink>
+                </div>
               </nav>
 
-              <div class="flex items-center space-x-4">
+              <div class="relative">
                 <button
                   class="p-2 text-white hover:text-gray-300 transition-colors flex items-center gap-2"
                   aria-label="Search"
+                  @click="toggleSearchBox"
                 >
                   <span>Search</span>
                   <Icon icon="heroicons-outline:search" class="w-5 h-5 rotate-90 text-[#f8e6ad]" />
                 </button>
+                <div
+                  v-if="state.showSearchBox"
+                  class="bg-[#1b1b1b] z-20 absolute -top-2 py-4 px-8 right-0"
+                >
+                  <Icon
+                    icon="heroicons-outline:x"
+                    class="w-8 h-8 cursor-pointer"
+                    @click="toggleSearchBox"
+                  />
+                  <div
+                    v-if="state.showSearchBox"
+                    class="justify-center bg-[#1b1b1b] shadow-lg p-5 absolute right-0 top-full z-50 text-base"
+                  >
+                    <div class="w-full max-w-5xl flex border border-gray-500">
+                      <input
+                        type="text"
+                        class="flex-1 bg-[#222] text-white px-4 py-3 outline-none"
+                        @keyup.enter="handleSearch"
+                        v-model="state.searchQuery"
+                      />
+                      <button
+                        class="px-12 bg-[#222] text-white tracking-wide border-l border-gray-500"
+                        @click="handleSearch"
+                      >
+                        SEARCH
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -225,5 +275,6 @@ onUnmounted(() => {
         </RouterLink>
       </div>
     </div>
+    <SubscribeModal :visible="subscribeModalVisible" @close="subscribeModalVisible = false" />
   </header>
 </template>

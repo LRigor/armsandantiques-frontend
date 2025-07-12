@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 import { apiService } from '@/services/api'
 import type { ProductDetail, SimilarProduct } from '@/types'
 
-export const useProductsStore = defineStore('products', {
+export const useProductDetailStore = defineStore('productDetail', {
   state: () => ({
+    type: 'for_sale' as 'for_sale' | 'sold',
     product: null as ProductDetail | null,
     loading: false,
     error: null as string | null,
@@ -19,7 +20,7 @@ export const useProductsStore = defineStore('products', {
       this.product = null
 
       try {
-        const response = await apiService.getProduct(slug)
+        const response = await apiService.getProducts({ type: this.type, slug })
         this.product = response.data
 
         // Fetch similar products after getting the main product
@@ -40,7 +41,12 @@ export const useProductsStore = defineStore('products', {
       this.similarProductsError = null
 
       try {
-        const response = await apiService.getSimilarProducts(excludeId, limit)
+        const response = await apiService.getProducts({
+          type: this.type,
+          excludeId,
+          limit,
+          sortBy: 'rand',
+        })
         this.similarProducts = response.data
       } catch (err) {
         this.similarProductsError =

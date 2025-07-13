@@ -14,57 +14,71 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('@/views/HomeView.vue'),
-      meta: {
-        title: 'Arms and Antiques - Rare & Collectible Firearms, Antiques & Military Items',
-      },
     },
     {
       path: '/for-sale',
       name: 'for-sale',
       component: () => import('@/views/ProductView.vue'),
-      meta: {
-        title: 'Products For Sale - Arms and Antiques',
-      },
     },
     {
       path: '/for-sale/:region',
       name: 'for-sale-region',
       component: () => import('@/views/ProductView.vue'),
-      meta: {
-        title: 'Products For Sale - Arms and Antiques',
-      },
     },
     {
       path: '/search',
       name: 'search',
       component: () => import('@/views/ProductView.vue'),
-      meta: {
-        title: 'Search Results - Arms and Antiques',
-      },
     },
     {
       path: '/sold',
       name: 'sold',
       component: () => import('@/views/ProductView.vue'),
-      meta: {
-        title: 'Sold Items - Arms and Antiques',
-      },
     },
     {
       path: '/sold/:region',
       name: 'sold-for-region',
       component: () => import('@/views/ProductView.vue'),
-      meta: {
-        title: 'Sold Items - Arms and Antiques',
-      },
     },
     {
       path: '/product/:slug',
       name: 'product',
       component: () => import('@/views/DetailView.vue'),
-      meta: {
-        title: 'Arms and Antiques - Product',
-      },
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('@/views/AboutView.vue'),
+    },
+    {
+      path: '/sell-to-us',
+      name: 'sell-to-us',
+      component: () => import('@/views/SellToUsView.vue'),
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: () => import('@/views/ContactUsView.vue'),
+    },
+    {
+      path: '/request-more-info/:slug',
+      name: 'request-more-info',
+      component: () => import('@/views/RequestMoreInfoView.vue'),
+    },
+    {
+      path: '/request-price/:slug',
+      name: 'request-price',
+      component: () => import('@/views/RequestPriceView.vue'),
+    },
+    {
+      path: '/wire-transfer',
+      name: 'wire-transfer',
+      component: () => import('@/views/WireTransferView.vue'),
+    },
+    {
+      path: '/checkout/:slug',
+      name: 'checkout',
+      component: () => import('@/views/CheckoutView.vue'),
     },
   ],
 })

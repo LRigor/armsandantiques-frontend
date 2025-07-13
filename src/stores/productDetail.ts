@@ -4,7 +4,7 @@ import type { ProductDetail, SimilarProduct } from '@/types'
 
 export const useProductDetailStore = defineStore('productDetail', {
   state: () => ({
-    type: 'for_sale' as 'for_sale' | 'sold',
+    type: 'for-sale' as 'for-sale' | 'sold',
     product: null as ProductDetail | null,
     loading: false,
     error: null as string | null,
@@ -22,7 +22,7 @@ export const useProductDetailStore = defineStore('productDetail', {
       try {
         const response = await apiService.getProducts({ type: this.type, slug })
         this.product = response.data
-
+        this.type = response.data.status === 'sold' ? 'sold' : 'for-sale'
         // Fetch similar products after getting the main product
         if (this.product?.id) {
           this.fetchSimilarProducts(this.product.id)
@@ -39,7 +39,6 @@ export const useProductDetailStore = defineStore('productDetail', {
     async fetchSimilarProducts(excludeId?: number, limit: number = 3) {
       this.similarProductsLoading = true
       this.similarProductsError = null
-
       try {
         const response = await apiService.getProducts({
           type: this.type,

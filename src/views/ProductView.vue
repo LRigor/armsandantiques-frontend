@@ -5,10 +5,18 @@ import { useHead } from '@vueuse/head'
 import { useProductStore } from '@/stores/product'
 import ProductCard from '@/components/layout/ProductCard.vue'
 import SearchRow from '@/components/layout/SearchRow.vue'
+import CustomLayout from '@/components/layout/CustomLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
 const productStore = useProductStore()
+
+// Create a computed property for the store interface that CustomLayout expects
+const storeForLayout = computed(() => ({
+  loading: productStore.loading && productStore.products.length === 0,
+  error: productStore.error,
+  hasData: productStore.products.length > 0 || (!productStore.loading && !productStore.error),
+}))
 
 const productTypeFromRoute = computed(() => {
   return route.name === 'search'
@@ -198,7 +206,6 @@ onUnmounted(() => {
 watch(
   [region, productType, searchQueryParam, productTypeFromRoute],
   async ([newRegion, newProductType, newSearchQuery, newProductTypeFromRoute]) => {
-    console.log(productStore.search)
     productStore.setRegion(newRegion || null)
     productStore.setProductType(newProductType || null)
 
@@ -236,99 +243,57 @@ useHead(
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#161616]">
-    <!-- Header Section -->
-    <div class="text-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
-        <div class="text-left">
-          <h1 class="text-4xl md:text-5xl font-georgia text-white mb-4">
-            {{ headerTitle }}
-          </h1>
-          <SearchRow
-            :search-query="searchQuery"
-            :selected-region="selectedRegion"
-            :selected-product-type="selectedProductType"
-            :regions="productStore.regions"
-            :product-types="productStore.productTypes"
-            :product-type="productStore.type"
-            :has-search="!!productStore.search"
-            @update:search-query="(value) => (searchQuery = value)"
-          />
+  <CustomLayout :store="storeForLayout" :fetch="loadProducts">
+    <div class="min-h-screen bg-[#161616]">
+      <!-- Header Section -->
+      <div class="text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+          <div class="text-left">
+            <h1 class="text-4xl md:text-5xl font-georgia text-white mb-4">
+              {{ headerTitle }}
+            </h1>
+            <SearchRow
+              :search-query="searchQuery"
+              :selected-region="selectedRegion"
+              :selected-product-type="selectedProductType"
+              :regions="productStore.regions"
+              :product-types="productStore.productTypes"
+              :product-type="productStore.type"
+              :has-search="!!productStore.search"
+              @update:search-query="(value) => (searchQuery = value)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Products Grid -->
+        <div v-if="productStore.products.length > 0">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" ref="productsGridRef">
+            <ProductCard
+              v-for="product in productStore.products"
+              :key="product.id"
+              :product="product"
+            />
+            <div ref="sentinelRef"></div>
+          </div>
+
+          <!-- Auto-loading indicator -->
+          <div v-if="isAutoLoading" class="text-center mt-8">
+            <div
+              class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"
+            ></div>
+            <p class="mt-2 text-gray-400 text-sm">Loading more products...</p>
+          </div>
+
+          <!-- End of Results -->
+          <div v-else-if="productStore.products.length > 0" class="text-center mt-12">
+            <p class="text-gray-400">
+              You've viewed all {{ productStore.products.length }} products
+            </p>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div
-        v-if="productStore.loading && productStore.products.length === 0"
-        class="text-center py-12"
-      >
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"
-        ></div>
-        <p class="mt-4 text-gray-400">Loading products...</p>
-      </div>
-
-      <!-- Error State -->
-      <div v-else-if="productStore.error" class="text-center py-12">
-        <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-          <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Products</h3>
-          <p class="text-red-600">{{ productStore.error }}</p>
-          <button
-            @click="loadProducts"
-            class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-
-      <!-- Products Grid -->
-      <div v-else-if="productStore.products.length > 0">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" ref="productsGridRef">
-          <ProductCard
-            v-for="product in productStore.products"
-            :key="product.id"
-            :product="product"
-          />
-          <div ref="sentinelRef"></div>
-        </div>
-
-        <!-- Auto-loading indicator -->
-        <div v-if="isAutoLoading" class="text-center mt-8">
-          <div
-            class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"
-          ></div>
-          <p class="mt-2 text-gray-400 text-sm">Loading more products...</p>
-        </div>
-
-        <!-- End of Results -->
-        <div v-else-if="productStore.products.length > 0" class="text-center mt-12">
-          <p class="text-gray-400">You've viewed all {{ productStore.products.length }} products</p>
-        </div>
-      </div>
-
-      <!-- No Products Found -->
-      <div v-else class="text-center py-12">
-        <div class="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-          <h2 class="text-xl font-semibold text-gray-900 mb-2">No Products Found</h2>
-          <p class="text-gray-600 mb-4">
-            {{
-              productStore.search
-                ? `No products found matching "${productStore.search}".`
-                : region
-                  ? `There are currently no products available for sale from ${productStore.regionName || region}.`
-                  : 'There are currently no products available for sale.'
-            }}
-          </p>
-          <router-link
-            to="/"
-            class="inline-block bg-amber-600 text-white px-6 py-2 rounded hover:bg-amber-700 transition-colors"
-          >
-            Return Home
-          </router-link>
-        </div>
-      </div>
-    </div>
-  </div>
+  </CustomLayout>
 </template>

@@ -18,3 +18,9 @@ body {
 #app {
   min-height: 100vh;
 }
+
+.grecaptcha-badge {
+  left: 0 !important;
+  right: auto !important;
+  position: relative !important;
+}

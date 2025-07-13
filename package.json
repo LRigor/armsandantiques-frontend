@@ -27,6 +27,7 @@
     "vee-validate": "^4.14.7",
     "vue": "^3.5.17",
     "vue-final-modal": "^4.5.5",
+    "vue-recaptcha-v3": "^2.0.1",
     "vue-router": "^4.5.1",
     "vue-toastification": "^2.0.0-rc.5",
     "vue3-carousel": "^0.3.4",

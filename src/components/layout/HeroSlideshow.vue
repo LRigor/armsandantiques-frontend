@@ -125,7 +125,7 @@ onUnmounted(() => {
         {{ currentRegion.product.name }}
       </p>
       <RouterLink
-        :to="`/catalog?region=${currentRegion.slug}`"
+        :to="`/for-sale/${currentRegion.slug}`"
         class="inline-flex text-left items-center mt-2 text-[#f8e6ad] hover:text-[#f8e6ad] text-lg font-semibold group"
       >
         View More

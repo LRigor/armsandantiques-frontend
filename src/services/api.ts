@@ -21,8 +21,47 @@ export const apiService = {
     }
   },
 
+  async submitSellToUsForm(formData: {
+    email: string
+    name: string
+    comments: string
+    files: File[]
+    recaptchaToken: string
+  }) {
+    try {
+      // Create FormData for file upload
+      const submitFormData = new FormData()
+      submitFormData.append('email', formData.email)
+      submitFormData.append('name', formData.name)
+      submitFormData.append('comments', formData.comments)
+      submitFormData.append('recaptcha_token', formData.recaptchaToken)
+
+      // Append files
+      formData.files.forEach((file, index) => {
+        submitFormData.append(`files[${index}]`, file)
+      })
+
+      const response = await fetch(import.meta.env.VITE_BASE_URL + '/feedback/sell-to-us/', {
+        method: 'POST',
+        body: submitFormData,
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return {
+        data: data,
+      }
+    } catch (error) {
+      console.error('Failed to submit sell-to-us form:', error)
+      throw error
+    }
+  },
+
   async getProducts(options: {
-    type: 'all' | 'for_sale' | 'sold'
+    type: 'all' | 'for-sale' | 'sold'
     slug?: string
     limit?: number
     offset?: number
@@ -45,7 +84,6 @@ export const apiService = {
         sortBy = 'default',
       } = options
 
-      console.log(type)
       // If slug is provided, fetch single product
       if (slug) {
         const response = await fetch(import.meta.env.VITE_BASE_URL + `/products/${slug}/`)
@@ -166,6 +204,24 @@ export const apiService = {
       console.error('Failed to fetch albums:', error)
       return {
         data: [],
+      }
+    }
+  },
+
+  async getCustomPage(url: string) {
+    try {
+      const response = await fetch(import.meta.env.VITE_BASE_URL + `/pages/${url}/`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      return {
+        data: data,
+      }
+    } catch (error) {
+      console.error('Failed to fetch about page:', error)
+      return {
+        data: null,
       }
     }
   },

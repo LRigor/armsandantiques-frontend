@@ -24,7 +24,6 @@ onMounted(() => {
   regionsStore.fetchRegions()
 })
 
-// Set page meta
 useHead({
   title: 'Arms and Antiques - Rare & Collectible Firearms, Antiques & Military Items',
   meta: [

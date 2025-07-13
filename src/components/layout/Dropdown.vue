@@ -40,7 +40,7 @@ const handleChange = (event: Event) => {
       :value="modelValue"
       @change="handleChange"
       :disabled="disabled"
-      class="bg-[#1b1b1b] focus:outline-n`one focus:ring-0 text-gray-200 border-none rounded-xl px-4 py-3 pr-10 w-full min-w-[200px] appearance-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+      class="bg-[#161616] focus:outline-none focus:ring-0 text-gray-200 border-none rounded-xl px-4 py-3 pr-10 w-full min-w-[200px] appearance-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
     >
       <option v-if="placeholder" value="">{{ placeholder }}</option>
       <option v-for="option in options" :key="option.id" :value="option.slug">

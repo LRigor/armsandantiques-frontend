@@ -138,7 +138,7 @@ useHead({
               <h3 class="text-3xl text-white font-georgia">Museums of the World</h3>
             </div>
             <RouterLink
-              to="/albums"
+              :to="`/museum`"
               class="text-[#f8e6ad] hover:text-[#f8e6ad] flex items-center gap-2 text-lg font-roboto"
             >
               View More

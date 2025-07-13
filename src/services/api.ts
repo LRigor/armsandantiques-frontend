@@ -208,6 +208,44 @@ export const apiService = {
     }
   },
 
+  async getAlbumDetail(slug: string, limit: number = 10, offset: number = 0) {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_BASE_URL + `/albums/${slug}/?limit=${limit}&offset=${offset}`,
+      )
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      return {
+        data: data,
+      }
+    } catch (error) {
+      console.error('Failed to fetch album detail:', error)
+      throw error
+    }
+  },
+
+  async getSimilarAlbums(albumId: number, limit: number = 3) {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_BASE_URL + `/albums/?limit=${limit}&similar_to=${albumId}`,
+      )
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      return {
+        data: data,
+      }
+    } catch (error) {
+      console.error('Failed to fetch similar albums:', error)
+      return {
+        data: [],
+      }
+    }
+  },
+
   async getCustomPage(url: string) {
     try {
       const response = await fetch(import.meta.env.VITE_BASE_URL + `/pages/${url}/`)

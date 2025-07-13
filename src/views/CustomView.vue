@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCustomStore } from '@/stores/custom'
 import CustomLayout from '@/components/layout/CustomLayout.vue'
 import ProductCard from '@/components/layout/ProductCard.vue'
 
-interface Props {
-  url?: string
-}
-
-const props = defineProps<Props>()
+const route = useRoute()
 const customStore = useCustomStore()
 
 // Set the URL and fetch data when component mounts
-customStore.url = props.url || 'about'
+customStore.url = route.name?.toString() || 'about'
 
 onMounted(() => {
   customStore.fetchCustomPage()

@@ -46,9 +46,39 @@ const router = createRouter({
       component: () => import('@/views/DetailView.vue'),
     },
     {
+      path: '/museum',
+      name: 'museum',
+      component: () => import('@/views/MuseumView.vue'),
+    },
+    {
+      path: '/museum/:slug',
+      name: 'museum-slug',
+      component: () => import('@/views/MuseumDetailView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
-      component: () => import('@/views/AboutView.vue'),
+      component: () => import('@/views/CustomView.vue'),
+    },
+    {
+      path: '/guarantee',
+      name: 'guarantee',
+      component: () => import('@/views/CustomView.vue'),
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/views/CustomView.vue'),
+    },
+    {
+      path: '/free-shipping',
+      name: 'free-shipping',
+      component: () => import('@/views/CustomView.vue'),
+    },
+    {
+      path: '/our-library',
+      name: 'our-library',
+      component: () => import('@/views/CustomView.vue'),
     },
     {
       path: '/sell-to-us',

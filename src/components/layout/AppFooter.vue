@@ -71,7 +71,9 @@ useVisitorStore().fetchVisitorCount()
               <li><RouterLink to="/terms">Terms of Sale</RouterLink></li>
               <li><RouterLink to="/guarantee">100% Guarantee</RouterLink></li>
               <li><RouterLink to="/sell-to-us">Sell to Us</RouterLink></li>
-              <li><RouterLink to="/privacy">Privacy Policy</RouterLink></li>
+              <li>
+                <a href="/public/docs/AAA_Privacy_Policy.pdf" target="_blank">Privacy Policy</a>
+              </li>
             </ul>
           </div>
 

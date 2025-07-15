@@ -58,11 +58,11 @@ useHead({
             <span class="text-[85px] text-[#baa680]">100%</span>
             <span class="text-3xl">Guarantee</span>
           </RouterLink>
-          <RouterLink to="/sold-items" class="flex flex-col items-center justify-center">
+          <RouterLink to="/sold" class="flex flex-col items-center justify-center">
             <span class="text-[85px] text-[#baa680]">1200</span>
             <span class="text-3xl">Items sold worldwide</span>
           </RouterLink>
-          <RouterLink to="/about-us" class="flex flex-col items-center justify-center">
+          <RouterLink to="/about" class="flex flex-col items-center justify-center">
             <span class="text-[85px] text-[#baa680]">20</span>
             <span class="text-3xl">Years in business</span>
           </RouterLink>

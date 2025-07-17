@@ -87,19 +87,19 @@ onUnmounted(() => {
 
 <template>
   <section
-    class="relative text-white overflow-hidden bg-black h-[calc(100vh-100px)]"
+    class="relative text-white overflow-hidden bg-black h-[40vh] lg:h-[calc(100vh-100px)]"
     @mouseenter="stopAutoPlay"
     @mouseleave="startAutoPlay"
   >
-    <div class="relative mx-auto px-4 sm:px-6 lg:px-8 z-10">
-      <div class="text-center">
-        <div v-if="!loading && regions.length > 0" class="mb-8 relative">
-          <div class="relative w-full h-[90vh] overflow-hidden rounded-lg">
+    <div class="relative mx-auto px-4 sm:px-6 lg:px-8 z-10 h-full">
+      <div class="text-center h-full">
+        <div v-if="!loading && regions.length > 0" class="mb-8 relative h-full">
+          <div class="relative w-full h-full overflow-hidden rounded-lg">
             <Transition name="slide" mode="out-in" appear>
               <div
                 v-if="currentRegion"
                 :key="`slide-${currentSlide}-${currentRegion.id}`"
-                class="absolute inset-0 flex items-center justify-center"
+                class="absolute inset-0 sm:inset-8 lg:inset-0 flex justify-center items-center sm:items-end sm:justify-end lg:items-center lg:justify-center"
               >
                 <span
                   class="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 font-serif uppercase text-[200px] font-normal leading-normal tracking-[-1.2px] text-[#1d1d1d] text-center whitespace-nowrap pointer-events-none"
@@ -110,7 +110,7 @@ onUnmounted(() => {
                   v-if="currentRegion.product?.image_original"
                   :src="currentRegion.product.image_original"
                   :alt="`${currentRegion.name} Collection`"
-                  class="w-auto h-full object-cover z-20"
+                  class="w-auto sm:w-40 lg:w-auto h-full sm:h-auto lg:h-full object-cover z-20"
                 />
               </div>
             </Transition>
@@ -120,7 +120,10 @@ onUnmounted(() => {
     </div>
 
     <!-- Current Region Info -->
-    <div v-if="currentRegion" class="absolute bottom-20 right-1/4 z-30 p-4 w-[350px] text-left">
+    <div
+      v-if="currentRegion"
+      class="hidden sm:block absolute bottom-20 left-10 lg:left-auto lg:right-1/4 z-30 p-4 w-[350px] text-left"
+    >
       <p v-if="currentRegion.product" class="text-gray-300 text-4xl font-georgia">
         {{ currentRegion.product.name }}
       </p>
